@@ -46,7 +46,12 @@
             "argsIgnorePattern": "^_"
           }
         ],
-        "rxjs/no-subscribe-handlers": "error"
+        "rxjs/prefer-observer": [
+          "error",
+          {
+            "allowNext": false 
+          }
+        ]
       }
     },
     {
