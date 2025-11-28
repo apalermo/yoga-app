@@ -1,11 +1,14 @@
 package com.openclassrooms.starterjwt.advice;
 
 import com.openclassrooms.starterjwt.exception.BadRequestException;
+import com.openclassrooms.starterjwt.exception.ForbiddenException;
 import com.openclassrooms.starterjwt.exception.NotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -27,5 +30,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Void> handleValidationException(MethodArgumentNotValidException ex) {
         return ResponseEntity.badRequest().build();
+    }
+
+    /**
+     * Gère les erreurs de permission
+     * Renvoie 403 forbidden
+     */
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<Void> handleForbiddenException(ForbiddenException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 }
