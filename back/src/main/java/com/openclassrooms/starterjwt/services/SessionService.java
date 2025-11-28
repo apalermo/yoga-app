@@ -27,6 +27,11 @@ public class SessionService {
     }
 
     public void delete(Long id) {
+
+        // on évite de renvoyer un 200 ok quand la session n'existe pas
+        if (!this.sessionRepository.existsById(id)) {
+            throw new NotFoundException();
+        }
         this.sessionRepository.deleteById(id);
     }
 
@@ -35,20 +40,24 @@ public class SessionService {
     }
 
     public Session getById(Long id) {
-        return this.sessionRepository.findById(id).orElse(null);
+        return this.sessionRepository.findById(id).orElseThrow(NotFoundException::new);
     }
 
     public Session update(Long id, Session session) {
+
+        // On évite de créer une session avec un ID inexistant
+        if (!this.sessionRepository.existsById(id)) {
+            throw new NotFoundException();
+        }
         session.setId(id);
         return this.sessionRepository.save(session);
     }
 
     public void participate(Long id, Long userId) {
-        Session session = this.sessionRepository.findById(id).orElse(null);
-        User user = this.userRepository.findById(userId).orElse(null);
-        if (session == null || user == null) {
-            throw new NotFoundException();
-        }
+
+        Session session = this.sessionRepository.findById(id).orElseThrow(NotFoundException::new);
+        User user = this.userRepository.findById(userId).orElseThrow(NotFoundException::new);
+
 
         boolean alreadyParticipate = session.getUsers().stream().anyMatch(o -> o.getId().equals(userId));
         if (alreadyParticipate) {
@@ -61,10 +70,7 @@ public class SessionService {
     }
 
     public void noLongerParticipate(Long id, Long userId) {
-        Session session = this.sessionRepository.findById(id).orElse(null);
-        if (session == null) {
-            throw new NotFoundException();
-        }
+        Session session = this.sessionRepository.findById(id).orElseThrow(NotFoundException::new);
 
         boolean alreadyParticipate = session.getUsers().stream().anyMatch(o -> o.getId().equals(userId));
         if (!alreadyParticipate) {
