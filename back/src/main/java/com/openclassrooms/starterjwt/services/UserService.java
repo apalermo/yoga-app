@@ -13,6 +13,10 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    public User save(User user) {
+        return this.userRepository.save(user);
+    }
+
     public void delete(Long id) {
         if (!this.userRepository.existsById(id)) {
             throw new NotFoundException();
@@ -22,5 +26,9 @@ public class UserService {
 
     public User findById(Long id) {
         return this.userRepository.findById(id).orElseThrow(NotFoundException::new);
+    }
+
+    public boolean existsByEmail(String userEmail) {
+        return this.userRepository.existsByEmail(userEmail);
     }
 }
