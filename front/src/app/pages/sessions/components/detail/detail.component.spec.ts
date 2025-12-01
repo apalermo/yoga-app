@@ -1,12 +1,13 @@
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { RouterTestingModule } from '@angular/router/testing';
+
 import { expect } from '@jest/globals';
 import { SessionService } from '../../../../core/service/session.service';
 
 import { DetailComponent } from './detail.component';
+import { provideRouter } from '@angular/router';
 
 describe('DetailComponent', () => {
   let component: DetailComponent;
@@ -21,14 +22,12 @@ describe('DetailComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        RouterTestingModule,
-        HttpClientModule,
-        MatSnackBarModule,
-        ReactiveFormsModule,
+      imports: [MatSnackBarModule, ReactiveFormsModule, DetailComponent],
+      providers: [
+        provideHttpClient(),
+        provideRouter([]),
+        { provide: SessionService, useValue: mockSessionService },
       ],
-      declarations: [DetailComponent],
-      providers: [{ provide: SessionService, useValue: mockSessionService }],
     }).compileComponents();
     fixture = TestBed.createComponent(DetailComponent);
     component = fixture.componentInstance;
