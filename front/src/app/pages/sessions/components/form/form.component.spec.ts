@@ -19,6 +19,7 @@ import { Session } from 'src/app/core/models/session.interface';
 describe('FormComponent', () => {
   let component: FormComponent;
   let fixture: ComponentFixture<FormComponent>;
+  let router: Router;
 
   // --- MOCKS ---
   const mockSessionService = {
@@ -29,11 +30,6 @@ describe('FormComponent', () => {
     create: jest.fn(),
     update: jest.fn(),
     detail: jest.fn(),
-  };
-
-  const mockRouter = {
-    url: '/sessions/create',
-    navigate: jest.fn(),
   };
 
   const mockMatSnackBar = {
@@ -71,9 +67,9 @@ describe('FormComponent', () => {
       providers: [
         provideHttpClient(),
         provideRouter([]),
+
         { provide: SessionService, useValue: mockSessionService },
         { provide: SessionApiService, useValue: mockSessionApiService },
-        { provide: Router, useValue: mockRouter },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: MatSnackBar, useValue: mockMatSnackBar },
       ],
@@ -84,6 +80,8 @@ describe('FormComponent', () => {
         },
       })
       .compileComponents();
+
+    router = TestBed.inject(Router); // On récupère l'instance réelle
   });
 
   it('should create', () => {
@@ -93,7 +91,8 @@ describe('FormComponent', () => {
   });
 
   it('should init in Create mode', () => {
-    mockRouter.url = '/sessions/create';
+    // On simule l'URL "/sessions/create"
+    jest.spyOn(router, 'url', 'get').mockReturnValue('/sessions/create');
 
     fixture = TestBed.createComponent(FormComponent);
     component = fixture.componentInstance;
@@ -104,7 +103,8 @@ describe('FormComponent', () => {
   });
 
   it('should init in Update mode', () => {
-    mockRouter.url = '/sessions/update/1';
+    // On simule l'URL "/sessions/update/1"
+    jest.spyOn(router, 'url', 'get').mockReturnValue('/sessions/update/1');
     mockSessionApiService.detail.mockReturnValue(of(mockSession));
 
     fixture = TestBed.createComponent(FormComponent);
@@ -117,8 +117,9 @@ describe('FormComponent', () => {
   });
 
   it('should call create API on submit when in Create mode', () => {
-    mockRouter.url = '/sessions/create';
+    jest.spyOn(router, 'url', 'get').mockReturnValue('/sessions/create');
     mockSessionApiService.create.mockReturnValue(of(mockSession));
+    const navigateSpy = jest.spyOn(router, 'navigate'); // Espion sur navigate
 
     fixture = TestBed.createComponent(FormComponent);
     component = fixture.componentInstance;
@@ -135,13 +136,14 @@ describe('FormComponent', () => {
 
     expect(mockSessionApiService.create).toHaveBeenCalled();
     expect(mockMatSnackBar.open).toHaveBeenCalled();
-    expect(mockRouter.navigate).toHaveBeenCalledWith(['sessions']);
+    expect(navigateSpy).toHaveBeenCalledWith(['sessions']);
   });
 
   it('should call update API on submit when in Update mode', () => {
-    mockRouter.url = '/sessions/update/1';
+    jest.spyOn(router, 'url', 'get').mockReturnValue('/sessions/update/1');
     mockSessionApiService.detail.mockReturnValue(of(mockSession));
     mockSessionApiService.update.mockReturnValue(of(mockSession));
+    const navigateSpy = jest.spyOn(router, 'navigate');
 
     fixture = TestBed.createComponent(FormComponent);
     component = fixture.componentInstance;
@@ -156,16 +158,17 @@ describe('FormComponent', () => {
 
     expect(mockSessionApiService.update).toHaveBeenCalled();
     expect(mockMatSnackBar.open).toHaveBeenCalled();
-    expect(mockRouter.navigate).toHaveBeenCalledWith(['sessions']);
+    expect(navigateSpy).toHaveBeenCalledWith(['sessions']);
   });
 
   it('should redirect if user is not admin', () => {
     mockSessionService.sessionInformation.admin = false;
+    const navigateSpy = jest.spyOn(router, 'navigate');
 
     fixture = TestBed.createComponent(FormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
 
-    expect(mockRouter.navigate).toHaveBeenCalledWith(['/sessions']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/sessions']);
   });
 });

@@ -16,6 +16,7 @@ import { SessionInformation } from '../../core/models/sessionInformation.interfa
 describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
+  let router: Router;
 
   // Mocks
   const authServiceMock = {
@@ -23,9 +24,6 @@ describe('LoginComponent', () => {
   };
   const sessionServiceMock = {
     logIn: jest.fn(),
-  };
-  const routerMock = {
-    navigate: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -42,11 +40,11 @@ describe('LoginComponent', () => {
       providers: [
         { provide: AuthService, useValue: authServiceMock },
         { provide: SessionService, useValue: sessionServiceMock },
-        { provide: Router, useValue: routerMock },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoginComponent);
+    router = TestBed.inject(Router);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -56,6 +54,7 @@ describe('LoginComponent', () => {
   });
 
   it('should call authService.login and redirect on success', () => {
+    const navigateSpy = jest.spyOn(router, 'navigate');
     const sessionInfo: SessionInformation = {
       token: 'token',
       type: 'Bearer',
@@ -77,7 +76,7 @@ describe('LoginComponent', () => {
       password: 'pwd',
     });
     expect(sessionServiceMock.logIn).toHaveBeenCalledWith(sessionInfo);
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/sessions']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/sessions']);
   });
 
   it('should set onError to true on failure', () => {

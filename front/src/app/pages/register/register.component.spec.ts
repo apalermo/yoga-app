@@ -11,19 +11,18 @@ import { expect } from '@jest/globals';
 import { RegisterComponent } from './register.component';
 import { AuthService } from 'src/app/core/service/auth.service';
 import { RegisterRequest } from 'src/app/core/models/registerRequest.interface';
-import { Router } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { throwError, of } from 'rxjs';
 
 describe('RegisterComponent', () => {
   let component: RegisterComponent;
   let fixture: ComponentFixture<RegisterComponent>;
+  let router: Router;
   // Mocks
   const authServiceMock = {
     register: jest.fn(),
   };
-  const routerMock = {
-    navigate: jest.fn(),
-  };
+
   const testUser: RegisterRequest = {
     email: 'toto@test.com',
     firstName: 'toto',
@@ -43,12 +42,13 @@ describe('RegisterComponent', () => {
       ],
       providers: [
         provideHttpClient(),
+        provideRouter([]),
         { provide: AuthService, useValue: authServiceMock },
-        { provide: Router, useValue: routerMock },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(RegisterComponent);
+    router = TestBed.inject(Router);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -58,13 +58,14 @@ describe('RegisterComponent', () => {
   });
 
   it('should authService.register and redirect on success', () => {
+    const navigateSpy = jest.spyOn(router, 'navigate');
     authServiceMock.register.mockReturnValue(of(undefined));
 
     component.form.setValue(testUser);
     component.submit();
 
     expect(authServiceMock.register).toHaveBeenCalledWith(testUser);
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/login']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/login']);
   });
 
   it('should set onError to true on failure', () => {
