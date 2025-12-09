@@ -8,9 +8,9 @@ describe('Register spec', () => {
     cy.intercept('POST', '/api/auth/register', {
       body: {
         id: 1,
-        username: 'userName',
-        firstName: 'firstName',
-        lastName: 'lastName',
+        username: 'toto@test.com',
+        firstName: 'Toto',
+        lastName: 'TEST',
         admin: false,
       },
     }).as('registerRequest');
@@ -25,7 +25,17 @@ describe('Register spec', () => {
     cy.get('button[type=submit]').click();
 
     // Vérification
-    cy.wait('@registerRequest');
+    cy.wait('@registerRequest').then((interception) => {
+      const body = interception.request.body;
+
+      // On vérifie que l'objet envoyé contient bien nos 4 champs
+      expect(body).to.deep.include({
+        firstName: 'Toto',
+        lastName: 'TEST',
+        email: 'toto@test.com',
+        password: 'test!1234',
+      });
+    });
     cy.url().should('include', '/login');
   });
 

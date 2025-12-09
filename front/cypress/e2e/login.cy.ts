@@ -9,9 +9,9 @@ describe('Login spec', () => {
     cy.intercept('POST', '/api/auth/login', {
       body: {
         id: 1,
-        username: 'userName',
-        firstName: 'firstName',
-        lastName: 'lastName',
+        username: 'yoga@studio.com',
+        firstName: 'Admin',
+        lastName: 'Admin',
         admin: true,
       },
     }).as('loginRequest'); // On nomme la requête
@@ -24,11 +24,17 @@ describe('Login spec', () => {
     cy.get('input[formControlName=password]').type('test!1234');
 
     // On clique sur le bouton Submit (sélecteur robuste à adapter si besoin)
-    // Astuce : cy.get('button[type="submit"]') est souvent le plus sûr
+    // cy.get('button[type="submit"]') est souvent le plus sûr
     cy.get('button[type="submit"]').click();
 
     // Synchronisation : On attend que le back-end virtuel réponde
-    cy.wait('@loginRequest');
+
+    cy.wait('@loginRequest').then((interception) => {
+      // On vérifie que le body envoyé au back correspond bien aux inputs
+      const body = interception.request.body;
+      expect(body).to.have.property('email', 'yoga@studio.com');
+      expect(body).to.have.property('password', 'test!1234');
+    });
 
     // Vérification
     cy.url().should('include', '/sessions');

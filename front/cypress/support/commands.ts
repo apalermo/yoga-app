@@ -3,12 +3,12 @@
 // with Intellisense and code completion in your
 // IDE or Text Editor.
 // ***********************************************
-// declare namespace Cypress {
-//   interface Chainable<Subject = any> {
-//     customCommand(param: any): typeof customCommand;
-//   }
-// }
-//
+// avoid eslint error
+declare namespace Cypress {
+  interface Chainable {
+    login(isAdmin?: boolean, sessionData?: any[]): Chainable<void>;
+  }
+}
 // function customCommand(param: any): void {
 //   console.warn(param);
 // }
@@ -41,3 +41,29 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
+// cypress/support/commands.ts
+
+// custom login function
+Cypress.Commands.add('login', (isAdmin = false, sessionData = []) => {
+  cy.visit('/login');
+
+  cy.intercept('POST', '/api/auth/login', {
+    body: {
+      id: 1,
+      username: 'yoga@studio.com',
+      firstName: 'Admin',
+      lastName: 'Admin',
+      admin: isAdmin,
+    },
+  }).as('loginRequest');
+
+  // ICI : On utilise les données passées en paramètre !
+  cy.intercept('GET', '/api/session', sessionData).as('session');
+
+  cy.get('input[formControlName=email]').type('yoga@studio.com');
+  cy.get('input[formControlName=password]').type('test!1234');
+  cy.get('button[type=submit]').click();
+
+  cy.wait('@loginRequest');
+  cy.url().should('include', '/sessions');
+});
