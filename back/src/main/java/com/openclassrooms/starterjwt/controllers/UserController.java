@@ -25,23 +25,23 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> findById(@PathVariable("id") String id) {
+    public ResponseEntity<?> findById(@PathVariable("id") Long id) {
 
-        User user = this.userService.findById(Long.valueOf(id));
+        User user = this.userService.findById(id);
         return ResponseEntity.ok().body(this.userMapper.toDto(user));
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") String id) {
+    public ResponseEntity<?> delete(@PathVariable("id") Long id) {
 
-        User user = this.userService.findById(Long.valueOf(id));
+        User user = this.userService.findById(id);
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if (!Objects.equals(userDetails.getUsername(), user.getEmail())) {
             throw new ForbiddenException();
         }
 
-        this.userService.delete(Long.parseLong(id));
+        this.userService.delete(id);
         return ResponseEntity.ok().build();
 
     }

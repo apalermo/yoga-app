@@ -25,9 +25,9 @@ public class TeacherController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> findById(@PathVariable("id") String id) {
+    public ResponseEntity<?> findById(@PathVariable("id") Long id) {
 
-        Teacher teacher = this.teacherService.findById(Long.valueOf(id));
+        Teacher teacher = this.teacherService.findById(id);
         return ResponseEntity.ok().body(this.teacherMapper.toDto(teacher));
     }
 

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 
 @RestControllerAdvice
@@ -18,17 +19,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.notFound().build();
     }
 
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<Void> handleBadRequestException(BadRequestException ex) {
-        return ResponseEntity.badRequest().build();
-    }
-
     /**
-     * Gère les erreurs de validation @Valid (ex: @NotNull, @Size...)
-     * Renvoie 400 Bad Request au lieu de laisser Spring Security renvoyer 401.
+     * Gère toutes les erreurs qui doivent retourner un 400 Bad Request :
+     * BadRequestException : lancée manuellement (ex : participate déjà fait)
+     * MethodArgumentNotValidException : échec de validation @Valid (ex : @NotBlank)
+     * MethodArgumentTypeMismatchException : mauvais type dans l'URL (ex : String au lieu de Long)
      */
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Void> handleValidationException(MethodArgumentNotValidException ex) {
+    @ExceptionHandler({
+            BadRequestException.class,
+            MethodArgumentNotValidException.class,
+            MethodArgumentTypeMismatchException.class
+    })
+    public ResponseEntity<Void> handleBadRequestExceptions(Exception ex) {
         return ResponseEntity.badRequest().build();
     }
 
@@ -40,4 +42,5 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Void> handleForbiddenException(ForbiddenException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
+
 }
