@@ -3,7 +3,6 @@ package com.openclassrooms.starterjwt.services;
 import com.openclassrooms.starterjwt.exception.NotFoundException;
 import com.openclassrooms.starterjwt.models.Teacher;
 import com.openclassrooms.starterjwt.repository.TeacherRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,6 +15,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,9 +49,8 @@ public class TeacherServiceTest {
         List<Teacher> teachers = teacherService.findAll();
 
         // Assert
-        Assertions.assertEquals(1, teachers.size());
-        Assertions.assertEquals("Un", teachers.getFirst().getLastName());
-        Assertions.assertEquals("Prof", teachers.getFirst().getFirstName());
+        assertThat(teachers).hasSize(1);
+        assertThat(teachers.getFirst().getLastName()).isEqualTo("Un");
         verify(teacherRepository, times(1)).findAll();
     }
 
@@ -64,7 +64,7 @@ public class TeacherServiceTest {
         Teacher result = teacherService.findById(1L);
 
         // Assert
-        Assertions.assertEquals(teacher, result);
+        assertThat(result).isEqualTo(teacher);
         verify(teacherRepository, times(1)).findById(1L);
     }
 
@@ -75,7 +75,9 @@ public class TeacherServiceTest {
         when(teacherRepository.findById(99L)).thenReturn(Optional.empty());
 
         // Act & Assert
-        Assertions.assertThrows(NotFoundException.class, () -> teacherService.findById(99L));
+        assertThatThrownBy(() -> teacherService.findById(99L))
+                .isInstanceOf(NotFoundException.class);
+
         verify(teacherRepository, times(1)).findById(99L);
     }
 }
