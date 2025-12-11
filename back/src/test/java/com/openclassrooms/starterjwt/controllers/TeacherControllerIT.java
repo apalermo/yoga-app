@@ -1,5 +1,6 @@
 package com.openclassrooms.starterjwt.controllers;
 
+import com.openclassrooms.starterjwt.exception.NotFoundException;
 import com.openclassrooms.starterjwt.models.Teacher;
 import com.openclassrooms.starterjwt.services.TeacherService;
 import org.junit.jupiter.api.DisplayName;
@@ -55,7 +56,7 @@ public class TeacherControllerIT {
     public void shouldReturnNotFound() throws Exception {
         // Arrange
         // On simule l'exception levée par le service
-        when(teacherService.findById(99L)).thenThrow(new com.openclassrooms.starterjwt.exception.NotFoundException());
+        when(teacherService.findById(99L)).thenThrow(new NotFoundException());
 
         // Act & Assert
         mockMvc.perform(get("/api/teacher/99")
