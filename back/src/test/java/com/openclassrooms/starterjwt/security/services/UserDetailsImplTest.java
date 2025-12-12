@@ -17,4 +17,18 @@ class UserDetailsImplTest {
         assertThat(user1.equals(null)).isFalse();
         assertThat(user1.equals(new Object())).isFalse();
     }
+
+    @Test
+    void testAuthoritiesAndAccountStatus() {
+        // Arrange
+        UserDetailsImpl user = UserDetailsImpl.builder().build();
+
+        // Act & Assert
+        // On appelle ces méthodes pour satisfaire JaCoCo (et vérifier qu'elles renvoient bien ce qu'on attend)
+        assertThat(user.getAuthorities()).isEmpty(); // Vérifie le HashSet vide
+        assertThat(user.isAccountNonExpired()).isTrue();
+        assertThat(user.isAccountNonLocked()).isTrue();
+        assertThat(user.isCredentialsNonExpired()).isTrue();
+        assertThat(user.isEnabled()).isTrue();
+    }
 }
